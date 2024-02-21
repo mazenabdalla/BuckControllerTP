@@ -1,0 +1,3 @@
+../Simulink/BuckRegulatorMicrocontroller.c:197:6:BuckRegulatorMicrocontroller_derivatives	0	static
+../Simulink/BuckRegulatorMicrocontroller.c:140:6:BuckRegulatorMicrocontroller_step	88	static
+../Simulink/BuckRegulatorMicrocontroller.c:207:6:BuckRegulatorMicrocontroller_initialize	12	static

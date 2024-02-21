@@ -1,0 +1,4 @@
+../Simulink/BuckRegulatorMicrocontroller.c:62:13:rt_ertODEUpdateContinuousStates	128	static
+../Simulink/BuckRegulatorMicrocontroller.c:140:6:BuckRegulatorMicrocontroller_step	32	static
+../Simulink/BuckRegulatorMicrocontroller.c:204:6:BuckRegulatorMicrocontroller_derivatives	16	static
+../Simulink/BuckRegulatorMicrocontroller.c:214:6:BuckRegulatorMicrocontroller_initialize	4	static
