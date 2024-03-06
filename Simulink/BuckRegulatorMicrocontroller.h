@@ -3,13 +3,13 @@
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
  *
- * File: BuckRegulatorMicrocontrollerReport.h
+ * File: BuckRegulatorMicrocontroller.h
  *
- * Code generated for Simulink model 'BuckRegulatorMicrocontrollerReport'.
+ * Code generated for Simulink model 'BuckRegulatorMicrocontroller'.
  *
- * Model version                  : 1.37
+ * Model version                  : 1.53
  * Simulink Coder version         : 23.2 (R2023b) 01-Aug-2023
- * C/C++ source code generated on : Tue Feb 20 22:11:37 2024
+ * C/C++ source code generated on : Tue Mar  5 21:37:23 2024
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -17,14 +17,14 @@
  * Validation result: Not run
  */
 
-#ifndef RTW_HEADER_BuckRegulatorMicrocontrollerReport_h_
-#define RTW_HEADER_BuckRegulatorMicrocontrollerReport_h_
-#ifndef BuckRegulatorMicrocontrollerReport_COMMON_INCLUDES_
-#define BuckRegulatorMicrocontrollerReport_COMMON_INCLUDES_
+#ifndef RTW_HEADER_BuckRegulatorMicrocontroller_h_
+#define RTW_HEADER_BuckRegulatorMicrocontroller_h_
+#ifndef BuckRegulatorMicrocontroller_COMMON_INCLUDES_
+#define BuckRegulatorMicrocontroller_COMMON_INCLUDES_
 #include "rtwtypes.h"
 #include "rtw_continuous.h"
 #include "rtw_solver.h"
-#endif                 /* BuckRegulatorMicrocontrollerReport_COMMON_INCLUDES_ */
+#endif                       /* BuckRegulatorMicrocontroller_COMMON_INCLUDES_ */
 
 #include <string.h>
 
@@ -149,7 +149,7 @@
 #define rtmGetTStart(rtm)              ((rtm)->Timing.tStart)
 #endif
 
-#define BuckRegulatorMicrocontrollerReport_M (rtM)
+#define BuckRegulatorMicrocontroller_M (rtM)
 
 /* Forward declaration for rtModel */
 typedef struct tag_RTM RT_MODEL;
@@ -193,8 +193,8 @@ typedef struct {
 
 /* External outputs (root outports fed by signals with default storage) */
 typedef struct {
-  real_T errorSignal;                  /* '<Root>/errorSignal' */
   real_T pwmPercent;                   /* '<Root>/pwmPercent' */
+  real_T errorSignal;                  /* '<Root>/errorSignal' */
 } ExtY;
 
 /* Real-time Model Data Structure */
@@ -232,12 +232,15 @@ struct tag_RTM {
    */
   struct {
     uint32_T clockTick0;
+    uint32_T clockTickH0;
     time_T stepSize0;
+    uint32_T clockTick1;
+    uint32_T clockTickH1;
     time_T tStart;
     SimTimeStep simTimeStep;
     boolean_T stopRequestedFlag;
     time_T *t;
-    time_T tArray[1];
+    time_T tArray[2];
   } Timing;
 };
 
@@ -257,8 +260,8 @@ extern ExtU rtU;
 extern ExtY rtY;
 
 /* Model entry point functions */
-extern void BuckRegulatorMicrocontrollerReport_initialize(void);
-extern void BuckRegulatorMicrocontrollerReport_step(void);
+extern void BuckRegulatorMicrocontroller_initialize(void);
+extern void BuckRegulatorMicrocontroller_step(void);
 
 /* Real-time Model object */
 extern RT_MODEL *const rtM;
@@ -277,9 +280,9 @@ extern RT_MODEL *const rtM;
  *
  * Here is the system hierarchy for this model
  *
- * '<Root>' : 'BuckRegulatorMicrocontrollerReport'
+ * '<Root>' : 'BuckRegulatorMicrocontroller'
  */
-#endif                    /* RTW_HEADER_BuckRegulatorMicrocontrollerReport_h_ */
+#endif                          /* RTW_HEADER_BuckRegulatorMicrocontroller_h_ */
 
 /*
  * File trailer for generated code.

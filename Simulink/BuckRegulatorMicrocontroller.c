@@ -3,13 +3,13 @@
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
  *
- * File: BuckRegulatorMicrocontrollerReport.c
+ * File: BuckRegulatorMicrocontroller.c
  *
- * Code generated for Simulink model 'BuckRegulatorMicrocontrollerReport'.
+ * Code generated for Simulink model 'BuckRegulatorMicrocontroller'.
  *
- * Model version                  : 1.37
+ * Model version                  : 1.53
  * Simulink Coder version         : 23.2 (R2023b) 01-Aug-2023
- * C/C++ source code generated on : Tue Feb 20 22:11:37 2024
+ * C/C++ source code generated on : Tue Mar  5 21:37:23 2024
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -17,7 +17,7 @@
  * Validation result: Not run
  */
 
-#include "BuckRegulatorMicrocontrollerReport.h"
+#include "BuckRegulatorMicrocontroller.h"
 #include "rtwtypes.h"
 
 /* Private macros used by the generated code to access rtModel */
@@ -53,7 +53,7 @@ static RT_MODEL rtM_;
 RT_MODEL *const rtM = &rtM_;
 
 /* private model entry point functions */
-extern void BuckRegulatorMicrocontrollerReport_derivatives(void);
+extern void BuckRegulatorMicrocontroller_derivatives(void);
 
 /*
  * This function updates continuous states using the ODE3 fixed-step
@@ -95,7 +95,7 @@ static void rt_ertODEUpdateContinuousStates(RTWSolverInfo *si )
   /* Assumes that rtsiSetT and ModelOutputs are up-to-date */
   /* f0 = f(t,y) */
   rtsiSetdX(si, f0);
-  BuckRegulatorMicrocontrollerReport_derivatives();
+  BuckRegulatorMicrocontroller_derivatives();
 
   /* f(:,2) = feval(odefile, t + hA(1), y + f*hB(:,1), args(:)(*)); */
   hB[0] = h * rt_ODE3_B[0][0];
@@ -105,8 +105,8 @@ static void rt_ertODEUpdateContinuousStates(RTWSolverInfo *si )
 
   rtsiSetT(si, t + h*rt_ODE3_A[0]);
   rtsiSetdX(si, f1);
-  BuckRegulatorMicrocontrollerReport_step();
-  BuckRegulatorMicrocontrollerReport_derivatives();
+  BuckRegulatorMicrocontroller_step();
+  BuckRegulatorMicrocontroller_derivatives();
 
   /* f(:,3) = feval(odefile, t + hA(2), y + f*hB(:,2), args(:)(*)); */
   for (i = 0; i <= 1; i++) {
@@ -119,8 +119,8 @@ static void rt_ertODEUpdateContinuousStates(RTWSolverInfo *si )
 
   rtsiSetT(si, t + h*rt_ODE3_A[1]);
   rtsiSetdX(si, f2);
-  BuckRegulatorMicrocontrollerReport_step();
-  BuckRegulatorMicrocontrollerReport_derivatives();
+  BuckRegulatorMicrocontroller_step();
+  BuckRegulatorMicrocontroller_derivatives();
 
   /* tnew = t + hA(3);
      ynew = y + f*hB(:,3); */
@@ -137,14 +137,21 @@ static void rt_ertODEUpdateContinuousStates(RTWSolverInfo *si )
 }
 
 /* Model step function */
-void BuckRegulatorMicrocontrollerReport_step(void)
+void BuckRegulatorMicrocontroller_step(void)
 {
-  real_T rtb_Kfb;
+  real_T rtb_K_fb;
+  real_T rtb_Subtract;
   real_T u0;
   if (rtmIsMajorTimeStep(rtM)) {
     /* set solver stop time */
-    rtsiSetSolverStopTime(&rtM->solverInfo,((rtM->Timing.clockTick0+1)*
-      rtM->Timing.stepSize0));
+    if (!(rtM->Timing.clockTick0+1)) {
+      rtsiSetSolverStopTime(&rtM->solverInfo, ((rtM->Timing.clockTickH0 + 1) *
+        rtM->Timing.stepSize0 * 4294967296.0));
+    } else {
+      rtsiSetSolverStopTime(&rtM->solverInfo, ((rtM->Timing.clockTick0 + 1) *
+        rtM->Timing.stepSize0 + rtM->Timing.clockTickH0 * rtM->Timing.stepSize0 *
+        4294967296.0));
+    }
   }                                    /* end MajorTimeStep */
 
   /* Update absolute time of base rate at minor time step */
@@ -156,21 +163,18 @@ void BuckRegulatorMicrocontrollerReport_step(void)
    *  Inport: '<Root>/outputVoltage'
    *  Inport: '<Root>/targetVoltage'
    */
-  rtb_Kfb = rtU.targetVoltage - rtU.outputVoltage;
+  rtb_Subtract = rtU.targetVoltage - rtU.outputVoltage;
 
-  /* Outport: '<Root>/errorSignal' */
-  rtY.errorSignal = rtb_Kfb;
-
-  /* Gain: '<Root>/Kfb' */
-  rtb_Kfb *= 0.38961038961038963;
+  /* Gain: '<Root>/K_fb' */
+  rtb_K_fb = 0.39 * rtb_Subtract;
 
   /* Sum: '<Root>/Sum' incorporates:
    *  Gain: '<Root>/K1'
    *  Integrator: '<Root>/Integrator'
    */
-  u0 = 21.4 * rtb_Kfb + rtX.Integrator_CSTATE;
+  u0 = 21.4 * rtb_K_fb + rtX.Integrator_CSTATE;
 
-  /* Saturate: '<Root>/Saturation' */
+  /* Saturate: '<Root>/Saturation ' */
   if (u0 > 1.0) {
     /* Outport: '<Root>/pwmPercent' */
     rtY.pwmPercent = 1.0;
@@ -182,10 +186,13 @@ void BuckRegulatorMicrocontrollerReport_step(void)
     rtY.pwmPercent = u0;
   }
 
-  /* End of Saturate: '<Root>/Saturation' */
+  /* End of Saturate: '<Root>/Saturation ' */
 
   /* Gain: '<Root>/K2' */
-  rtDW.K2 = 20.7 * rtb_Kfb;
+  rtDW.K2 = 20.7 * rtb_K_fb;
+
+  /* Outport: '<Root>/errorSignal' */
+  rtY.errorSignal = rtb_Subtract;
   if (rtmIsMajorTimeStep(rtM)) {
     rt_ertODEUpdateContinuousStates(&rtM->solverInfo);
 
@@ -194,14 +201,36 @@ void BuckRegulatorMicrocontrollerReport_step(void)
      * been executed. The absolute time is the multiplication of "clockTick0"
      * and "Timing.stepSize0". Size of "clockTick0" ensures timer will not
      * overflow during the application lifespan selected.
+     * Timer of this task consists of two 32 bit unsigned integers.
+     * The two integers represent the low bits Timing.clockTick0 and the high bits
+     * Timing.clockTickH0. When the low bit overflows to 0, the high bits increment.
      */
-    ++rtM->Timing.clockTick0;
+    if (!(++rtM->Timing.clockTick0)) {
+      ++rtM->Timing.clockTickH0;
+    }
+
     rtM->Timing.t[0] = rtsiGetSolverStopTime(&rtM->solverInfo);
+
+    {
+      /* Update absolute timer for sample time: [1.0E-5s, 0.0s] */
+      /* The "clockTick1" counts the number of times the code of this task has
+       * been executed. The resolution of this integer timer is 1.0E-5, which is the step size
+       * of the task. Size of "clockTick1" ensures timer will not overflow during the
+       * application lifespan selected.
+       * Timer of this task consists of two 32 bit unsigned integers.
+       * The two integers represent the low bits Timing.clockTick1 and the high bits
+       * Timing.clockTickH1. When the low bit overflows to 0, the high bits increment.
+       */
+      rtM->Timing.clockTick1++;
+      if (!rtM->Timing.clockTick1) {
+        rtM->Timing.clockTickH1++;
+      }
+    }
   }                                    /* end MajorTimeStep */
 }
 
 /* Derivatives for root system: '<Root>' */
-void BuckRegulatorMicrocontrollerReport_derivatives(void)
+void BuckRegulatorMicrocontroller_derivatives(void)
 {
   XDot *_rtXdot;
   _rtXdot = ((XDot *) rtM->derivs);
@@ -211,7 +240,7 @@ void BuckRegulatorMicrocontrollerReport_derivatives(void)
 }
 
 /* Model initialize function */
-void BuckRegulatorMicrocontrollerReport_initialize(void)
+void BuckRegulatorMicrocontroller_initialize(void)
 {
   /* Registration code */
   {
@@ -246,7 +275,7 @@ void BuckRegulatorMicrocontrollerReport_initialize(void)
   rtsiSetIsMinorTimeStepWithModeChange(&rtM->solverInfo, false);
   rtsiSetSolverName(&rtM->solverInfo,"ode3");
   rtmSetTPtr(rtM, &rtM->Timing.tArray[0]);
-  rtM->Timing.stepSize0 = 0.2;
+  rtM->Timing.stepSize0 = 1.0E-5;
 
   /* InitializeConditions for Integrator: '<Root>/Integrator' */
   rtX.Integrator_CSTATE = 0.0;
